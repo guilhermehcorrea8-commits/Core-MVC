@@ -1,0 +1,114 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+
+    <title>@ViewData["Title"] - Sistema de Estoque</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/SistemaEstoque.styles.css" asp-append-version="true" />
+</head>
+
+<body>
+
+    <!-- MENU PRINCIPAL -->
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow">
+            <div class="container">
+
+                <!-- LOGO -->
+                <a class="navbar-brand fw-bold" asp-area="" asp-controller="Home" asp-action="Index">
+                    📦 Sistema de Estoque
+                </a>
+
+                <!-- BOTÃO MOBILE -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuPrincipal"
+                    aria-controls="menuPrincipal" aria-expanded="false" aria-label="Abrir menu">
+
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- MENU -->
+                <div class="collapse navbar-collapse" id="menuPrincipal">
+
+                    <ul class="navbar-nav ms-auto">
+
+                        <!-- INÍCIO -->
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">
+                                🏠 Início
+                            </a>
+                        </li>
+
+                        <!-- PRODUTOS -->
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Produtos" asp-action="Index">
+                                📦 Produtos
+                            </a>
+                        </li>
+
+                        <!-- CATEGORIAS -->
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Categorias" asp-action="Index">
+                                🏷️ Categorias
+                            </a>
+                        </li>
+
+                        <!-- MOVIMENTAÇÕES -->
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="MovimentacoesEstoque" asp-action="Index">
+                                🔄 Movimentações
+                            </a>
+                        </li>
+
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+
+    <!-- CONTEÚDO -->
+    <main>
+        <div class="container py-4">
+
+            @RenderBody()
+
+        </div>
+    </main>
+
+
+    <!-- RODAPÉ -->
+    <footer class="border-top bg-light mt-5 py-4">
+
+        <div class="container text-center text-muted">
+
+            <div class="fw-bold">
+                📦 Sistema de Controle de Estoque
+            </div>
+
+            <small>
+                &copy; 2026 - SistemaEstoque
+            </small>
+
+        </div>
+
+    </footer>
+
+
+    <!-- SCRIPTS -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+
+</html>

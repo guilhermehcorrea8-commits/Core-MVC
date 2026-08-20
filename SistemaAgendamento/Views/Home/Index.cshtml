@@ -1,0 +1,89 @@
+﻿@{
+    ViewData["Title"] = "Sistema de Agendamento";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Sistema de Agendamento</h1>
+
+    <p class="lead">
+        Controle seus clientes, profissionais, serviços e agendamentos.
+    </p>
+</div>
+
+<hr />
+
+<div class="row mt-4">
+
+    <div class="col-md-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <h2>👤</h2>
+                <h5 class="card-title">Clientes</h5>
+                <p class="card-text">
+                    Cadastre e consulte os clientes.
+                </p>
+
+                <a asp-controller="Clientes"
+                   asp-action="Index"
+                   class="btn btn-primary">
+                    Acessar Clientes
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <h2>👨‍💼</h2>
+                <h5 class="card-title">Profissionais</h5>
+                <p class="card-text">
+                    Cadastre os profissionais.
+                </p>
+
+                <a asp-controller="Profissionais"
+                   asp-action="Index"
+                   class="btn btn-primary">
+                    Acessar Profissionais
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <h2>🛠️</h2>
+                <h5 class="card-title">Serviços</h5>
+                <p class="card-text">
+                    Cadastre os serviços disponíveis.
+                </p>
+
+                <a asp-controller="Servicos"
+                   asp-action="Index"
+                   class="btn btn-primary">
+                    Acessar Serviços
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <h2>📅</h2>
+                <h5 class="card-title">Agendamentos</h5>
+                <p class="card-text">
+                    Consulte e cadastre agendamentos.
+                </p>
+
+                <a asp-controller="Agendamentos"
+                   asp-action="Index"
+                   class="btn btn-success">
+                    Acessar Agendamentos
+                </a>
+            </div>
+        </div>
+    </div>
+
+</div>

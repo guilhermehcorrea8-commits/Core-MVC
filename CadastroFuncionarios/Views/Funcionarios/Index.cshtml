@@ -1,0 +1,85 @@
+@model IEnumerable<CadastroFuncionarios.Models.Funcionario>
+
+@{
+    ViewData["Title"] = "Funcionários";
+}
+
+<h1>Funcionários</h1>
+
+<p>
+    <a asp-action="Create">Cadastrar Novo Funcionário</a>
+</p>
+
+<form asp-action="Index" method="get" class="mb-3">
+    <div class="row">
+        <div class="col-md-5">
+            <label for="cargo" class="form-label">Filtrar por cargo:</label>
+            <input type="text"
+                   name="cargo"
+                   id="cargo"
+                   class="form-control"
+                   value="@Context.Request.Query["cargo"]" />
+        </div>
+
+        <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary">
+                Filtrar
+            </button>
+        </div>
+
+        <div class="col-md-2 d-flex align-items-end">
+            <a asp-action="Index" class="btn btn-secondary">
+                Limpar
+            </a>
+        </div>
+    </div>
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Nome
+            </th>
+            <th>
+                Cargo
+            </th>
+            <th>
+                Salário
+            </th>
+            <th>
+                Data de Admissão
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var funcionario in Model)
+        {
+            <tr>
+                <td>
+                    @funcionario.Nome
+                </td>
+
+                <td>
+                    @funcionario.Cargo
+                </td>
+
+                <td>
+                    @funcionario.Salario.ToString("C")
+                </td>
+
+                <td>
+                    @funcionario.DataAdmissao.ToString("dd/MM/yyyy")
+                </td>
+
+                <td>
+                    <a asp-action="Edit" asp-route-id="@funcionario.Id">Editar</a> |
+                    <a asp-action="Details" asp-route-id="@funcionario.Id">Detalhes</a> |
+                    <a asp-action="Delete" asp-route-id="@funcionario.Id">Excluir</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

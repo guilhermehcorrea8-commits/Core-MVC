@@ -1,0 +1,134 @@
+@model IEnumerable<SistemaGestao.Models.Movimentacao>
+
+@{
+    ViewData["Title"] = "Movimentações";
+}
+
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h1 class="fw-bold">Movimentações</h1>
+
+            <p class="text-muted mb-0">
+                Histórico de entradas e saídas.
+            </p>
+        </div>
+
+        <a asp-action="Create" class="btn btn-primary">
+            + Nova movimentação
+        </a>
+
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="card shadow-sm">
+            <div class="card-body text-center py-5">
+
+                <h4>Nenhuma movimentação registrada</h4>
+
+                <p class="text-muted">
+                    Comece registrando sua primeira entrada ou saída.
+                </p>
+
+                <a asp-action="Create" class="btn btn-primary">
+                    Registrar movimentação
+                </a>
+
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover mb-0">
+
+                    <thead class="table-light">
+                        <tr>
+                            <th>Data</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                            <th>Conta</th>
+                            <th>Valor</th>
+                            <th class="text-end">Ações</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+
+                                <td>
+                                    @item.Data.ToString("dd/MM/yyyy")
+                                </td>
+
+                                <td>
+                                    @if (item.Tipo == "Entrada")
+                                    {
+                                        <span class="badge bg-success">
+                                            Entrada
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">
+                                            Saída
+                                        </span>
+                                    }
+                            </td>
+
+                            <td>
+                                @(string.IsNullOrWhiteSpace(item.Descricao)
+                                                            ? "Sem descrição"
+                                                            : item.Descricao)
+                                </td>
+
+                                <td>
+                                    @(item.Conta?.Nome ?? "Conta não encontrada")
+                                </td>
+
+                                <td class="fw-bold
+                                            @(item.Tipo == "Entrada"
+                                                                            ? "text-success"
+                                                                            : "text-danger")">
+
+                                    @(item.Tipo == "Entrada" ? "+" : "-")
+                                    @item.Valor.ToString("C")
+                                </td>
+
+                                <td class="text-end">
+
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info">
+                                        Ver
+                                    </a>
+
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning">
+                                        Editar
+                                    </a>
+
+                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">
+                                        Excluir
+                                    </a>
+
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    }
+
+</div>

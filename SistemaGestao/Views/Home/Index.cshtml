@@ -1,0 +1,271 @@
+﻿@model SistemaGestao.Models.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="fw-bold">Dashboard</h1>
+            <p class="text-muted">
+                Visão geral da sua gestão financeira
+            </p>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Saldo disponível</h6>
+                    <h2 class="fw-bold text-success">
+                        @Model.SaldoAtual.ToString("C")
+                    </h2>
+                    <small class="text-muted">
+                        Receitas - Despesas
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Receitas</h6>
+                    <h2 class="fw-bold text-primary">
+                        @Model.TotalReceitas.ToString("C")
+                    </h2>
+                    <small class="text-muted">
+                        Total registrado
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Despesas</h6>
+                    <h2 class="fw-bold text-danger">
+                        @Model.TotalDespesas.ToString("C")
+                    </h2>
+                    <small class="text-muted">
+                        Total registrado
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Contas ativas</h6>
+                    <h2 class="fw-bold">
+                        @Model.QuantidadeContas
+                    </h2>
+                    <small class="text-muted">
+                        Contas cadastradas
+                    </small>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-md-6">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 fw-bold">
+                        🎯 Metas financeiras
+                    </h5>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Economizado</span>
+
+                        <strong>
+                            @Model.TotalEconomizado.ToString("C")
+                        </strong>
+                    </div>
+
+                    <div class="progress mb-3" style="height: 20px;">
+
+                        @{
+                            decimal percentual = 0;
+
+                            if (Model.TotalMetas > 0)
+                            {
+                                percentual =
+                                    (Model.TotalEconomizado / Model.TotalMetas) * 100;
+                            }
+
+                            if (percentual > 100)
+                            {
+                                percentual = 100;
+                            }
+                        }
+
+                        <div class="progress-bar"
+                             role="progressbar"
+                             style="width: @percentual%">
+                            @percentual.ToString("0.0")%
+                        </div>
+
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+
+                        <span>
+                            Objetivo:
+                        </span>
+
+                        <strong>
+                            @Model.TotalMetas.ToString("C")
+                        </strong>
+
+                    </div>
+
+                    <hr />
+
+                    <div>
+                        <strong>@Model.QuantidadeMetas</strong>
+                        meta(s) cadastrada(s)
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-6">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 fw-bold">
+                        🏦 Patrimônio nas contas
+                    </h5>
+                </div>
+
+                <div class="card-body">
+
+                    <h2 class="fw-bold">
+                        @Model.SaldoContas.ToString("C")
+                    </h2>
+
+                    <p class="text-muted">
+                        Soma dos saldos das contas ativas.
+                    </p>
+
+                    <a asp-controller="Contas"
+                       asp-action="Index"
+                       class="btn btn-primary">
+                        Gerenciar contas
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="card shadow-sm border-0 mt-4">
+
+        <div class="card-header bg-white">
+            <h5 class="mb-0 fw-bold">
+                📋 Últimas movimentações
+            </h5>
+        </div>
+
+        <div class="card-body">
+
+            @if (Model.UltimasMovimentacoes.Any())
+            {
+                <div class="table-responsive">
+
+                    <table class="table table-hover">
+
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Tipo</th>
+                                <th>Descrição</th>
+                                <th>Conta</th>
+                                <th>Valor</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var movimentacao in Model.UltimasMovimentacoes)
+                            {
+                                <tr>
+
+                                    <td>
+                                        @movimentacao.Data.ToString("dd/MM/yyyy")
+                                    </td>
+
+                                    <td>
+                                        @if (movimentacao.Tipo == "Entrada")
+                                        {
+                                            <span class="badge bg-success">
+                                                Entrada
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">
+                                                Saída
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        @movimentacao.Descricao
+                                    </td>
+
+                                    <td>
+                                        @movimentacao.Conta?.Nome
+                                    </td>
+
+                                    <td class="fw-bold">
+                                        @movimentacao.Valor.ToString("C")
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-4">
+
+                    <p class="text-muted mb-0">
+                        Nenhuma movimentação registrada.
+                    </p>
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+</div>
