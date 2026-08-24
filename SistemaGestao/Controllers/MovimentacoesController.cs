@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -6,23 +8,33 @@ using SistemaGestao.Models;
 
 namespace SistemaGestao.Controllers
 {
+    [Authorize]
     public class MovimentacoesController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public MovimentacoesController(ApplicationDbContext context)
+        public MovimentacoesController(
+            ApplicationDbContext context,
+            UserManager<IdentityUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Movimentacoes
         public async Task<IActionResult> Index()
         {
-            var movimentacoes = _context.Movimentacoes
-                .Include(m => m.Conta)
-                .OrderByDescending(m => m.Data);
+            var usuarioId = _userManager.GetUserId(User);
 
-            return View(await movimentacoes.ToListAsync());
+            var movimentacoes = await _context.Movimentacoes
+                .Include(m => m.Conta)
+                .Where(m => m.Conta != null &&
+                            m.Conta.UsuarioId == usuarioId)
+                .OrderByDescending(m => m.Data)
+                .ToListAsync();
+
+            return View(movimentacoes);
         }
 
         // GET: Movimentacoes/Details/5
@@ -31,9 +43,14 @@ namespace SistemaGestao.Controllers
             if (id == null)
                 return NotFound();
 
+            var usuarioId = _userManager.GetUserId(User);
+
             var movimentacao = await _context.Movimentacoes
                 .Include(m => m.Conta)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m =>
+                    m.Id == id &&
+                    m.Conta != null &&
+                    m.Conta.UsuarioId == usuarioId);
 
             if (movimentacao == null)
                 return NotFound();
@@ -42,10 +59,14 @@ namespace SistemaGestao.Controllers
         }
 
         // GET: Movimentacoes/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            var usuarioId = _userManager.GetUserId(User);
+
             ViewData["ContaId"] = new SelectList(
-                _context.Contas.Where(c => c.Ativa),
+                await _context.Contas
+                    .Where(c => c.UsuarioId == usuarioId && c.Ativa)
+                    .ToListAsync(),
                 "Id",
                 "Nome"
             );
@@ -60,6 +81,19 @@ namespace SistemaGestao.Controllers
             [Bind("Id,Tipo,Valor,Data,Descricao,ContaId")]
             Movimentacao movimentacao)
         {
+            var usuarioId = _userManager.GetUserId(User);
+
+            // Validação do tipo
+            if (movimentacao.Tipo != "Entrada" &&
+                movimentacao.Tipo != "Saída")
+            {
+                ModelState.AddModelError(
+                    "Tipo",
+                    "O tipo deve ser Entrada ou Saída."
+                );
+            }
+
+            // Validação do valor
             if (movimentacao.Valor <= 0)
             {
                 ModelState.AddModelError(
@@ -68,14 +102,26 @@ namespace SistemaGestao.Controllers
                 );
             }
 
+            // Validação da data
+            if (movimentacao.Data == default)
+            {
+                ModelState.AddModelError(
+                    "Data",
+                    "Informe uma data válida."
+                );
+            }
+
+            // Busca somente uma conta pertencente ao usuário
             var conta = await _context.Contas
-                .FirstOrDefaultAsync(c => c.Id == movimentacao.ContaId);
+                .FirstOrDefaultAsync(c =>
+                    c.Id == movimentacao.ContaId &&
+                    c.UsuarioId == usuarioId);
 
             if (conta == null)
             {
                 ModelState.AddModelError(
                     "ContaId",
-                    "A conta selecionada não existe."
+                    "A conta selecionada não existe ou não pertence ao usuário."
                 );
             }
             else if (!conta.Ativa)
@@ -88,7 +134,9 @@ namespace SistemaGestao.Controllers
 
             // Verifica saldo para saída
             if (conta != null &&
-                movimentacao.Tipo.Equals("Saída", StringComparison.OrdinalIgnoreCase) &&
+                movimentacao.Tipo.Equals(
+                    "Saída",
+                    StringComparison.OrdinalIgnoreCase) &&
                 movimentacao.Valor > conta.Saldo)
             {
                 ModelState.AddModelError(
@@ -122,8 +170,11 @@ namespace SistemaGestao.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
+            // Recarrega as contas do usuário
             ViewData["ContaId"] = new SelectList(
-                _context.Contas.Where(c => c.Ativa),
+                await _context.Contas
+                    .Where(c => c.UsuarioId == usuarioId && c.Ativa)
+                    .ToListAsync(),
                 "Id",
                 "Nome",
                 movimentacao.ContaId
@@ -138,14 +189,22 @@ namespace SistemaGestao.Controllers
             if (id == null)
                 return NotFound();
 
+            var usuarioId = _userManager.GetUserId(User);
+
             var movimentacao = await _context.Movimentacoes
-                .FindAsync(id);
+                .Include(m => m.Conta)
+                .FirstOrDefaultAsync(m =>
+                    m.Id == id &&
+                    m.Conta != null &&
+                    m.Conta.UsuarioId == usuarioId);
 
             if (movimentacao == null)
                 return NotFound();
 
             ViewData["ContaId"] = new SelectList(
-                _context.Contas,
+                await _context.Contas
+                    .Where(c => c.UsuarioId == usuarioId && c.Ativa)
+                    .ToListAsync(),
                 "Id",
                 "Nome",
                 movimentacao.ContaId
@@ -165,6 +224,30 @@ namespace SistemaGestao.Controllers
             if (id != movimentacao.Id)
                 return NotFound();
 
+            var usuarioId = _userManager.GetUserId(User);
+
+            // Busca a movimentação original pertencente ao usuário
+            var movimentacaoOriginal = await _context.Movimentacoes
+                .Include(m => m.Conta)
+                .FirstOrDefaultAsync(m =>
+                    m.Id == id &&
+                    m.Conta != null &&
+                    m.Conta.UsuarioId == usuarioId);
+
+            if (movimentacaoOriginal == null)
+                return NotFound();
+
+            // Validação do tipo
+            if (movimentacao.Tipo != "Entrada" &&
+                movimentacao.Tipo != "Saída")
+            {
+                ModelState.AddModelError(
+                    "Tipo",
+                    "O tipo deve ser Entrada ou Saída."
+                );
+            }
+
+            // Validação do valor
             if (movimentacao.Valor <= 0)
             {
                 ModelState.AddModelError(
@@ -173,28 +256,43 @@ namespace SistemaGestao.Controllers
                 );
             }
 
-            var movimentacaoOriginal = await _context.Movimentacoes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(m => m.Id == id);
+            // Validação da data
+            if (movimentacao.Data == default)
+            {
+                ModelState.AddModelError(
+                    "Data",
+                    "Informe uma data válida."
+                );
+            }
 
-            if (movimentacaoOriginal == null)
-                return NotFound();
-
+            // Conta antiga
             var contaAntiga = await _context.Contas
-                .FirstOrDefaultAsync(c => c.Id == movimentacaoOriginal.ContaId);
+                .FirstOrDefaultAsync(c =>
+                    c.Id == movimentacaoOriginal.ContaId &&
+                    c.UsuarioId == usuarioId);
 
+            // Conta nova
             var contaNova = await _context.Contas
-                .FirstOrDefaultAsync(c => c.Id == movimentacao.ContaId);
+                .FirstOrDefaultAsync(c =>
+                    c.Id == movimentacao.ContaId &&
+                    c.UsuarioId == usuarioId);
 
             if (contaNova == null)
             {
                 ModelState.AddModelError(
                     "ContaId",
-                    "A conta selecionada não existe."
+                    "A conta selecionada não existe ou não pertence ao usuário."
+                );
+            }
+            else if (!contaNova.Ativa)
+            {
+                ModelState.AddModelError(
+                    "ContaId",
+                    "A conta selecionada está inativa."
                 );
             }
 
-            // 1. Desfaz a movimentação antiga
+            // 1. Desfaz temporariamente a movimentação antiga
             if (contaAntiga != null)
             {
                 if (movimentacaoOriginal.Tipo.Equals(
@@ -211,29 +309,17 @@ namespace SistemaGestao.Controllers
                 }
             }
 
-            // 2. Verifica se a nova saída possui saldo suficiente
-            decimal saldoDisponivel = 0;
-
-            if (contaNova != null)
-            {
-                saldoDisponivel = contaNova.Saldo;
-
-                // Se a conta antiga e a nova forem a mesma,
-                // o saldo já foi corrigido acima.
-                if (contaAntiga != null &&
-                    contaAntiga.Id == contaNova.Id)
-                {
-                    saldoDisponivel = contaNova.Saldo;
-                }
-
-                if (movimentacao.Tipo.Equals(
+            // 2. Verifica saldo da nova movimentação
+            if (contaNova != null &&
+                movimentacao.Tipo.Equals(
                     "Saída",
-                    StringComparison.OrdinalIgnoreCase) &&
-                    movimentacao.Valor > saldoDisponivel)
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                if (movimentacao.Valor > contaNova.Saldo)
                 {
                     ModelState.AddModelError(
                         "Valor",
-                        $"Saldo insuficiente. Saldo disponível: {saldoDisponivel:C}"
+                        $"Saldo insuficiente. Saldo disponível: {contaNova.Saldo:C}"
                     );
                 }
             }
@@ -241,6 +327,7 @@ namespace SistemaGestao.Controllers
             if (ModelState.IsValid && contaNova != null)
             {
                 // 3. Aplica a nova movimentação
+
                 if (movimentacao.Tipo.Equals(
                     "Entrada",
                     StringComparison.OrdinalIgnoreCase))
@@ -254,15 +341,19 @@ namespace SistemaGestao.Controllers
                     contaNova.Saldo -= movimentacao.Valor;
                 }
 
-                _context.Update(movimentacao);
+                // Atualiza somente os dados permitidos
+                movimentacaoOriginal.Tipo = movimentacao.Tipo;
+                movimentacaoOriginal.Valor = movimentacao.Valor;
+                movimentacaoOriginal.Data = movimentacao.Data;
+                movimentacaoOriginal.Descricao = movimentacao.Descricao;
+                movimentacaoOriginal.ContaId = movimentacao.ContaId;
 
                 await _context.SaveChangesAsync();
 
                 return RedirectToAction(nameof(Index));
             }
 
-            // Se houver erro, precisamos desfazer a alteração temporária
-            // feita no saldo da conta antiga.
+            // Se houver erro, desfaz a alteração temporária
             if (contaAntiga != null)
             {
                 if (movimentacaoOriginal.Tipo.Equals(
@@ -279,8 +370,11 @@ namespace SistemaGestao.Controllers
                 }
             }
 
+            // Recarrega as contas do usuário
             ViewData["ContaId"] = new SelectList(
-                _context.Contas,
+                await _context.Contas
+                    .Where(c => c.UsuarioId == usuarioId && c.Ativa)
+                    .ToListAsync(),
                 "Id",
                 "Nome",
                 movimentacao.ContaId
@@ -295,9 +389,14 @@ namespace SistemaGestao.Controllers
             if (id == null)
                 return NotFound();
 
+            var usuarioId = _userManager.GetUserId(User);
+
             var movimentacao = await _context.Movimentacoes
                 .Include(m => m.Conta)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m =>
+                    m.Id == id &&
+                    m.Conta != null &&
+                    m.Conta.UsuarioId == usuarioId);
 
             if (movimentacao == null)
                 return NotFound();
@@ -310,14 +409,19 @@ namespace SistemaGestao.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            var usuarioId = _userManager.GetUserId(User);
+
             var movimentacao = await _context.Movimentacoes
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .Include(m => m.Conta)
+                .FirstOrDefaultAsync(m =>
+                    m.Id == id &&
+                    m.Conta != null &&
+                    m.Conta.UsuarioId == usuarioId);
 
             if (movimentacao == null)
                 return NotFound();
 
-            var conta = await _context.Contas
-                .FirstOrDefaultAsync(c => c.Id == movimentacao.ContaId);
+            var conta = movimentacao.Conta;
 
             if (conta != null)
             {
@@ -343,4 +447,4 @@ namespace SistemaGestao.Controllers
             return RedirectToAction(nameof(Index));
         }
     }
-}  
+}

@@ -3,13 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using SistemaGestao.Models;
 
 namespace SistemaGestao.Data
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<IdentityUser>
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        public ApplicationDbContext(
+            DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
         }
@@ -36,6 +39,13 @@ namespace SistemaGestao.Data
             modelBuilder.Entity<Conta>()
                 .Property(c => c.Saldo)
                 .HasPrecision(18, 2);
+
+            // Relacionamento Conta -> Usuario
+            modelBuilder.Entity<Conta>()
+                .HasOne(c => c.Usuario)
+                .WithMany()
+                .HasForeignKey(c => c.UsuarioId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<MetaFinanceira>()
                 .Property(m => m.ValorObjetivo)

@@ -1,44 +1,53 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SistemaGestao.Data;
 using SistemaGestao.Models;
 
 namespace SistemaGestao.Controllers
 {
+    [Authorize]
     public class ContasController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public ContasController(ApplicationDbContext context)
+        public ContasController(
+            ApplicationDbContext context,
+            UserManager<IdentityUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Contas
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Contas.ToListAsync());
+            var usuarioId = _userManager.GetUserId(User);
+
+            var contas = await _context.Contas
+                .Where(c => c.UsuarioId == usuarioId)
+                .ToListAsync();
+
+            return View(contas);
         }
 
         // GET: Contas/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
+
+            var usuarioId = _userManager.GetUserId(User);
 
             var conta = await _context.Contas
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(c =>
+                    c.Id == id &&
+                    c.UsuarioId == usuarioId);
+
             if (conta == null)
-            {
                 return NotFound();
-            }
 
             return View(conta);
         }
@@ -50,18 +59,22 @@ namespace SistemaGestao.Controllers
         }
 
         // POST: Contas/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Nome,Saldo,Instituicao,Ativa")] Conta conta)
+        public async Task<IActionResult> Create(
+            [Bind("Nome,Saldo,Instituicao,Ativa")] Conta conta)
         {
             if (ModelState.IsValid)
             {
+                conta.UsuarioId = _userManager.GetUserId(User) ?? string.Empty;
+
                 _context.Add(conta);
+
                 await _context.SaveChangesAsync();
+
                 return RedirectToAction(nameof(Index));
             }
+
             return View(conta);
         }
 
@@ -69,50 +82,53 @@ namespace SistemaGestao.Controllers
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var conta = await _context.Contas.FindAsync(id);
+            var usuarioId = _userManager.GetUserId(User);
+
+            var conta = await _context.Contas
+                .FirstOrDefaultAsync(c =>
+                    c.Id == id &&
+                    c.UsuarioId == usuarioId);
+
             if (conta == null)
-            {
                 return NotFound();
-            }
+
             return View(conta);
         }
 
         // POST: Contas/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Nome,Saldo,Instituicao,Ativa")] Conta conta)
+        public async Task<IActionResult> Edit(
+            int id,
+            [Bind("Id,Nome,Saldo,Instituicao,Ativa")] Conta conta)
         {
             if (id != conta.Id)
-            {
                 return NotFound();
-            }
+
+            var usuarioId = _userManager.GetUserId(User);
+
+            var contaExistente = await _context.Contas
+                .FirstOrDefaultAsync(c =>
+                    c.Id == id &&
+                    c.UsuarioId == usuarioId);
+
+            if (contaExistente == null)
+                return NotFound();
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(conta);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ContaExists(conta.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                contaExistente.Nome = conta.Nome;
+                contaExistente.Saldo = conta.Saldo;
+                contaExistente.Instituicao = conta.Instituicao;
+                contaExistente.Ativa = conta.Ativa;
+
+                await _context.SaveChangesAsync();
+
                 return RedirectToAction(nameof(Index));
             }
+
             return View(conta);
         }
 
@@ -120,16 +136,17 @@ namespace SistemaGestao.Controllers
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
+
+            var usuarioId = _userManager.GetUserId(User);
 
             var conta = await _context.Contas
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(c =>
+                    c.Id == id &&
+                    c.UsuarioId == usuarioId);
+
             if (conta == null)
-            {
                 return NotFound();
-            }
 
             return View(conta);
         }
@@ -139,19 +156,21 @@ namespace SistemaGestao.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var conta = await _context.Contas.FindAsync(id);
+            var usuarioId = _userManager.GetUserId(User);
+
+            var conta = await _context.Contas
+                .FirstOrDefaultAsync(c =>
+                    c.Id == id &&
+                    c.UsuarioId == usuarioId);
+
             if (conta != null)
             {
                 _context.Contas.Remove(conta);
+
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool ContaExists(int id)
-        {
-            return _context.Contas.Any(e => e.Id == id);
         }
     }
 }

@@ -5,11 +5,13 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 using SistemaGestao.Data;
 using SistemaGestao.Models;
 
 namespace SistemaGestao.Controllers
 {
+    [Authorize]
     public class DespesasController : Controller
     {
         private readonly ApplicationDbContext _context;

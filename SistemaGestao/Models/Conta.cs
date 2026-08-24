@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Identity;
 
 namespace SistemaGestao.Models
 {
@@ -26,6 +27,12 @@ namespace SistemaGestao.Models
 
         [Display(Name = "Ativa")]
         public bool Ativa { get; set; } = true;
+
+        [Required]
+        public string UsuarioId { get; set; } = string.Empty;
+
+
+        public IdentityUser? Usuario { get; set; }
 
         public ICollection<Movimentacao> Movimentacoes { get; set; }
             = new List<Movimentacao>();

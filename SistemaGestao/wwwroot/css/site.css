@@ -1,22 +1,502 @@
-html {
-  font-size: 14px;
+/* =========================================================
+   PALETA SISTEMAGESTAO
+   ========================================================= */
+
+:root {
+    --bege-pao: #F3D2A2;
+    --caramelo: #D9A066;
+    --marrom-cobre: #B87333;
+    --marrom-escuro: #8B4513;
+    --marrom-suave: #6B3E26;
+    --bege-claro: #E6C9A8;
 }
 
-@media (min-width: 768px) {
-  html {
+
+/* =========================================================
+   DASHBOARD
+   ========================================================= */
+
+.dashboard-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 25px 0 50px;
+}
+
+
+/* =========================================================
+   CABEÇALHO
+   ========================================================= */
+
+.dashboard-header {
+    margin-bottom: 30px;
+}
+
+.dashboard-header h1 {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 5px;
+    color: var(--marrom-escuro);
+    letter-spacing: -0.5px;
+}
+
+.dashboard-header p {
+    margin: 0;
+    color: var(--marrom-suave);
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   CARDS PRINCIPAIS
+   ========================================================= */
+
+.dashboard-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 18px;
+}
+
+.dashboard-card {
+    background: #ffffff;
+    border: 1px solid var(--bege-claro);
+    border-radius: 5px;
+    padding: 18px 14px;
+    min-height: 105px;
+    box-shadow: 0 2px 8px rgba(107, 62, 38, 0.12);
+    transition: 0.2s ease;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(107, 62, 38, 0.18);
+}
+
+.card-label {
+    display: block;
+    color: var(--marrom-suave);
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.dashboard-card .valor {
+    margin: 0 0 7px;
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.dashboard-card small {
+    color: var(--marrom-suave);
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   CORES DOS VALORES
+   ========================================================= */
+
+.valor.saldo {
+    color: var(--marrom-escuro);
+}
+
+.valor.receitas {
+    color: var(--marrom-cobre);
+}
+
+.valor.despesas {
+    color: var(--marrom-escuro);
+}
+
+.valor.contas {
+    color: var(--marrom-suave);
+}
+
+
+/* =========================================================
+   SEGUNDA LINHA
+   ========================================================= */
+
+.dashboard-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-bottom: 18px;
+}
+
+
+/* =========================================================
+   SEÇÕES
+   ========================================================= */
+
+.dashboard-section {
+    background: #ffffff;
+    border: 1px solid var(--bege-claro);
+    border-radius: 5px;
+    box-shadow: 0 2px 8px rgba(107, 62, 38, 0.12);
+    overflow: hidden;
+}
+
+.section-header {
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--bege-claro);
+    color: var(--marrom-escuro);
     font-size: 16px;
-  }
+    font-weight: 600;
+    background: #ffffff;
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+.section-body {
+    padding: 16px;
 }
 
-html {
-  position: relative;
-  min-height: 100%;
+
+/* =========================================================
+   METAS FINANCEIRAS
+   ========================================================= */
+
+.meta-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: var(--marrom-suave);
 }
+
+.meta-info strong {
+    font-size: 13px;
+    color: var(--marrom-escuro);
+}
+
+.progress-container {
+    height: 16px;
+    background-color: var(--bege-claro);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 14px;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: var(--marrom-cobre);
+    color: #ffffff;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    padding-left: 2px;
+    min-width: 0;
+}
+
+.meta-info.objetivo {
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--bege-claro);
+}
+
+.meta-footer {
+    padding-top: 12px;
+    color: var(--marrom-suave);
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   PATRIMÔNIO
+   ========================================================= */
+
+.patrimonio h2 {
+    margin: 0 0 6px;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--marrom-escuro);
+}
+
+.patrimonio p {
+    margin: 0 0 12px;
+    color: var(--marrom-suave);
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   BOTÃO GERENCIAR CONTAS
+   ========================================================= */
+
+.btn-dashboard {
+    display: inline-block;
+    padding: 7px 12px;
+    background-color: var(--caramelo);
+    border: 1px solid var(--marrom-cobre);
+    color: var(--marrom-escuro) !important;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+.btn-dashboard:hover {
+    background-color: var(--marrom-cobre);
+    border-color: var(--marrom-escuro);
+    color: #ffffff !important;
+    text-decoration: none;
+}
+
+
+/* =========================================================
+   ÚLTIMAS MOVIMENTAÇÕES
+   ========================================================= */
+
+.movimentacoes {
+    width: 100%;
+}
+
+.dashboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.dashboard-table thead th {
+    padding: 9px 7px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--marrom-escuro);
+    border-bottom: 2px solid var(--marrom-cobre);
+    background: #ffffff;
+}
+
+.dashboard-table tbody td {
+    padding: 9px 7px;
+    border-bottom: 1px solid var(--bege-claro);
+    color: var(--marrom-suave);
+}
+
+.dashboard-table tbody tr {
+    transition: 0.2s;
+}
+
+.dashboard-table tbody tr:hover {
+    background-color: #fff8ed;
+}
+
+.valor-tabela {
+    font-weight: 700;
+    color: var(--marrom-escuro);
+}
+
+
+/* =========================================================
+   BADGES - ENTRADA / SAÍDA
+   ========================================================= */
+
+.badge {
+    display: inline-block;
+    padding: 3px 7px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.badge.entrada {
+    background-color: var(--caramelo);
+    color: var(--marrom-escuro);
+}
+
+.badge.saida {
+    background-color: var(--marrom-escuro);
+    color: #ffffff;
+}
+
+
+/* =========================================================
+   MENSAGEM SEM MOVIMENTAÇÕES
+   ========================================================= */
+
+.empty-message {
+    padding: 14px;
+    background-color: var(--bege-claro);
+    border: 1px solid var(--caramelo);
+    color: var(--marrom-suave);
+    font-size: 13px;
+    border-radius: 3px;
+}
+
+
+/* =========================================================
+   FUNDO DO SISTEMA
+   ========================================================= */
 
 body {
-  margin-bottom: 60px;
+    background-color: var(--bege-pao);
+    color: var(--marrom-suave);
+}
+
+
+/* =========================================================
+   LINKS
+   ========================================================= */
+
+a {
+    color: var(--marrom-escuro);
+}
+
+a:hover {
+    color: var(--marrom-cobre);
+}
+
+
+/* =========================================================
+   NAVBAR
+   ========================================================= */
+
+.navbar {
+    background-color: #ffffff !important;
+    border-bottom: 2px solid var(--bege-claro);
+    box-shadow: 0 2px 8px rgba(107, 62, 38, 0.10);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    color: var(--marrom-escuro) !important;
+}
+
+.navbar-nav .nav-link {
+    color: var(--marrom-suave) !important;
+    font-weight: 500;
+    border-radius: 5px;
+    transition: 0.2s;
+}
+
+.navbar-nav .nav-link:hover {
+    background-color: var(--bege-claro);
+    color: var(--marrom-escuro) !important;
+}
+
+
+/* =========================================================
+   BOTÕES BOOTSTRAP
+   ========================================================= */
+
+.btn-primary {
+    background-color: var(--marrom-cobre);
+    border-color: var(--marrom-cobre);
+}
+
+.btn-primary:hover {
+    background-color: var(--marrom-escuro);
+    border-color: var(--marrom-escuro);
+}
+
+.btn-success {
+    background-color: var(--caramelo);
+    border-color: var(--caramelo);
+    color: var(--marrom-escuro);
+}
+
+.btn-success:hover {
+    background-color: var(--marrom-cobre);
+    border-color: var(--marrom-cobre);
+    color: #ffffff;
+}
+
+.btn-danger {
+    background-color: var(--marrom-escuro);
+    border-color: var(--marrom-escuro);
+}
+
+.btn-danger:hover {
+    background-color: var(--marrom-suave);
+    border-color: var(--marrom-suave);
+}
+
+
+/* =========================================================
+   CARDS BOOTSTRAP
+   ========================================================= */
+
+.card {
+    border-color: var(--bege-claro) !important;
+}
+
+
+/* =========================================================
+   TABELAS BOOTSTRAP
+   ========================================================= */
+
+.table thead {
+    background-color: var(--marrom-escuro);
+    color: #ffffff;
+}
+
+
+/* =========================================================
+   FORMULÁRIOS
+   ========================================================= */
+
+.form-control,
+.form-select {
+    border-color: var(--bege-claro);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--marrom-cobre);
+    box-shadow: 0 0 0 0.2rem rgba(184, 115, 51, 0.25);
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+footer {
+    background-color: var(--caramelo);
+    color: var(--marrom-suave);
+    border-top: 1px solid var(--bege-claro);
+}
+
+footer a {
+    color: var(--marrom-escuro);
+    text-decoration: none;
+}
+
+footer a:hover {
+    color: var(--marrom-cobre);
+    text-decoration: underline;
+}
+
+
+/* =========================================================
+   RESPONSIVIDADE
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+    .dashboard-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .dashboard-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+@media (max-width: 600px) {
+
+    .dashboard-container {
+        padding: 20px 15px 40px;
+    }
+
+    .dashboard-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-header h1 {
+        font-size: 28px;
+    }
+
+    .dashboard-table {
+        min-width: 700px;
+    }
 }
